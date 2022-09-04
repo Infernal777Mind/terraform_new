@@ -1,0 +1,64 @@
+---
+- hosts: servers
+  become: yes
+  become_user: root
+  remote_user: admin
+  tasks:
+
+  - name: Install curl -y
+    apt:
+      name: curl
+      state: latest
+
+  - name: This is the Ubuntu package repository
+    shell: 'curl -fsSL https://deb.nodesource.com/setup_18.x'
+
+  - name: Update
+    apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+
+  - name: Upgrade
+    apt: upgrade=dist force_apt_get=yes
+
+  - name: install nodejs
+    apt: name=nodejs
+
+  - name: install NPM
+    apt: name=npm
+
+  - name: HTTPS
+    shell: 'apt install apt-transport-https ca-certificates curl software-properties-common -y'
+
+  - name: This is the Ubuntu package repository docker
+    shell: 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -'
+
+  - name: add_repo
+    ansible.builtin.apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+      state: present
+
+  - name: Update
+    apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+   
+  - name: install docker
+    apt: name=docker-ce
+
+  - name: install git
+    apt: name=git
+
+  - name: git clone repository
+    ansible.builtin.git:
+      repo: https://github.com/amundsen-io/amundsen.git
+      dest: /usr/local/bin/Amunds
+      version: master
+
+  - name: Docker compuse
+    shell: 'curl -L "https://github.com/docker/compose/releases/download/v2.6.1/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose'
+
+  - name: chmod Docker compuse
+    shell: 'chmod +x /usr/local/bin/docker-compose'
+
+  - name: Elastic
+    shell: 'echo "vm.max_map_count=262144" >> /etc/sysctl.conf | sysctl -p '
+    
+  - name: Docker Neo4j Backend
+    shell: 'docker-compose -f /usr/local/bin/Amunds/docker-amundsen.yml up -d'

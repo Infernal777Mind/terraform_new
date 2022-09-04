@@ -1,0 +1,10 @@
+.terraform.lock.hcl
+/roles
+.dd
+.clickhouse.yaml
+.meta.txt
+.terraform
+.terraform/
+secret.tfvars
+hosts
+ansible.cfg
